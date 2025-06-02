@@ -1,19 +1,14 @@
-from django.urls import path, include
+from django.urls import path,include
+from rest_framework_nested.routers import NestedDefaultRouter
 from rest_framework import routers
-from .views import ConversationViewSet, MessageViewSet
-from django.contrib import admin
+from .views import ConversationViewSet, UserViewSet, MessageViewSet
 
-# Initialize the DefaultRouter
 router = routers.DefaultRouter()
-router.register(r'conversations', ConversationViewSet, basename='conversation')
-router.register(r'messages', MessageViewSet, basename='message')
-
-# Define URL patterns
-urlpatterns = [
-    path('api/', include(router.urls)),  # Maps /api/conversations/ and /api/messages/
-]
+router.register(r"conversations", ConversationViewSet, basename="conversations")
+router.register(r"messages", MessageViewSet, basename="messages")
+router.register(r"users", UserViewSet, basename="users")
+conversation = NestedDefaultRouter(router, r"conversations", lookup="conversations")
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('messaging_app.urls')),  # Updated to reference messaging_app
+    path('', include(router.urls)),
 ]
