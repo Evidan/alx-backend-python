@@ -5,6 +5,9 @@ from rest_framework import viewsets, permissions, status, filters
 from rest_framework.response import Response
 from .models import Conversation, Message
 from .serializers import ConversationSerializer, MessageSerializer
+from rest_framework import viewsets
+from .models import Message
+from .permissions import IsParticipantOfConversation
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
@@ -45,3 +48,12 @@ class MessageViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class MessageViewSet(viewsets.ModelViewSet):
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    permission_classes = [IsParticipantOfConversation]
+
+    def get_queryset(self):
+        # Limit messages to only conversations the user is a participant in
+        return Message.objects.filter(conversation__participants=self.request.user)
